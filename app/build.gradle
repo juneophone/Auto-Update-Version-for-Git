@@ -7,18 +7,21 @@ def gitVersionCode() {
 }
 
 def gitVersionTag() {
+    // set default version title
+    def versionTitle = '1.00.'
     // get git tags string
     def cmd = 'git describe --tags'
     def version = cmd.execute().text.trim()
-
     // get git HASH code
     def cmd1 = 'git rev-parse --short HEAD'
     def hashCode = cmd1.execute().text.trim()
-
     // get git HEAD build count number
     def cmd2 = 'git rev-list HEAD --first-parent --count'
     def versioncount = cmd2.execute().text.trim().toInteger()
-
+    // get git branch name
+    def cmd3 = 'git rev-parse --abbrev-ref HEAD'
+    def branchs = cmd3.execute().text.trim()
+    // get now date
     String today = new Date().format("MMdd")
 
     def pattern = "-(\\d+)-g"
@@ -27,7 +30,7 @@ def gitVersionTag() {
     if (matcher) {
         version = version.substring(0, matcher.start()) + "." + matcher[0][1]
     } else {
-        version = version + "1.00." + today + versioncount + "-" + hashCode
+        version = version + versionTitle + today + versioncount + "-" + hashCode
     }
 
     return version
@@ -46,10 +49,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
-//        debug{
-//            // Separated from the release version
-//            applicationIdSuffix ".debug"
-//        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -67,21 +66,10 @@ android {
 
         variant.outputs.all {
             //set build apk name
-            def newApkName = defaultConfig.applicationId + '-' + gitVersionTag()
-            def releases = 'release'
-            def debugs = 'debug'
-
-            if (variant.buildType.name.equals(releases)) {
-                newApkName += '-' + releases + '.apk'
-            }
-            if (variant.buildType.name.equals(debugs)) {
-                newApkName += '-' + debugs + '.apk'
-            }
-            outputFileName  = newApkName
+            outputFileName = defaultConfig.applicationId + '-' + gitVersionTag() + '-' + variant.buildType.name + '.apk'
         }
     }
     // Auto update version and apk name  --end--
-
 }
 
 dependencies {
