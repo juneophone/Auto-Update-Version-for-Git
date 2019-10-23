@@ -1,5 +1,39 @@
 apply plugin: 'com.android.application'
 
+// Auto version code  -- start--
+def gitVersionCode() {
+    def cmd = 'git rev-list HEAD --first-parent --count'
+    cmd.execute().text.trim().toInteger()
+}
+
+def gitVersionTag() {
+    // get git tags string
+    def cmd = 'git describe --tags'
+    def version = cmd.execute().text.trim()
+
+    // get git HASH code
+    def cmd1 = 'git rev-parse --short HEAD'
+    def hashCode = cmd1.execute().text.trim()
+
+    // get git HEAD build count number
+    def cmd2 = 'git rev-list HEAD --first-parent --count'
+    def versioncount = cmd2.execute().text.trim().toInteger()
+
+    String today = new Date().format("MMdd")
+
+    def pattern = "-(\\d+)-g"
+    def matcher = version =~ pattern
+
+    if (matcher) {
+        version = version.substring(0, matcher.start()) + "." + matcher[0][1]
+    } else {
+        version = version + "1.00." + today + versioncount + "-" + hashCode
+    }
+
+    return version
+}
+// Auto version code  -- end--
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.0"
@@ -12,11 +46,42 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+//        debug{
+//            // Separated from the release version
+//            applicationIdSuffix ".debug"
+//        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    // Auto update version and apk name  --start--
+    applicationVariants.all { variant ->
+        // writer version information to apk
+        variant.outputs.each { output ->
+            // set app versionName and versionCode
+            output.versionNameOverride = gitVersionTag()
+            output.versionCodeOverride = gitVersionCode()
+        }
+
+        variant.outputs.all {
+            //set build apk name
+            def newApkName = defaultConfig.applicationId + '-' + gitVersionTag()
+            def releases = 'release'
+            def debugs = 'debug'
+
+            if (variant.buildType.name.equals(releases)) {
+                newApkName += '-' + releases + '.apk'
+            }
+            if (variant.buildType.name.equals(debugs)) {
+                newApkName += '-' + debugs + '.apk'
+            }
+            outputFileName  = newApkName
+        }
+    }
+    // Auto update version and apk name  --end--
+
 }
 
 dependencies {
