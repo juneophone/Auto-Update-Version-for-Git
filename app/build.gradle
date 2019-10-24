@@ -15,8 +15,8 @@ def gitVersionTag() {
     // get git HASH code
     def cmd1 = 'git rev-parse --short HEAD'
     def hashCode = cmd1.execute().text.trim()
-    // get git HEAD build count number
-    def cmd2 = 'git rev-list HEAD --first-parent --count'
+    // get git all commit count number
+    def cmd2 = 'git rev-list HEAD --first-parent --count --no-merges'
     def versioncount = cmd2.execute().text.trim().toInteger()
     // get git branch name
     def cmd3 = 'git rev-parse --abbrev-ref HEAD'
@@ -30,7 +30,7 @@ def gitVersionTag() {
     if (matcher) {
         version = version.substring(0, matcher.start()) + "." + matcher[0][1]
     } else {
-        version = version + versionTitle + today + versioncount + "-" + hashCode
+        version = versionTitle + today + "-" + hashCode
     }
 
     return version
