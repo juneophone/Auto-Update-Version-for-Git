@@ -1,8 +1,9 @@
 package com.eink.autoupdateandroidstudioversionname;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
+import android.util.Log;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = this.getClass().getSimpleName();
@@ -11,6 +12,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        String Testversion = "git commit for test auto update version";
+        String Testversion = getString(R.string.VersionName);
+        Log.i(TAG,"BuildVersion1= " + Testversion);
+//        Log.i(TAG,"BuildVersion2 = " + BuildConfig.VersionName);
     }
 }

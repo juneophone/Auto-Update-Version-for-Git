@@ -49,6 +49,16 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        // Writer string data to res/string --start--
+        // read example in layout: android:text="@string/VersionName"
+        // read example in java: String Testversion = getString(R.string.VersionName);
+        buildTypes.each {
+            def versionnames = gitVersionTag()
+            // Writer res/string.xml
+            it.resValue('string', 'VersionName', versionnames)
+        }
+        // Writer string data to res/string --end--
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
